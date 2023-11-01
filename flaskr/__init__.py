@@ -25,6 +25,7 @@ def create_app(test_config=None):
 
     SECRET_KEY = os.getenv('SECRET_KEY')
     print('NOME FANTASIA: ',os.getenv('EMPRESA_NOMFAN'))
+    print('SSS:',app.config["SECURITY_PASSWORD_SALT"])
 
     from .controller.auth import auth
     app.register_blueprint(auth.bp)
