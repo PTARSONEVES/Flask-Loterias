@@ -56,7 +56,7 @@ def init_db():
     db = get_db()
 
     if typeconnect == 'sqlite':
-        with current_app.open_resource('database\schema.sql') as f:
+        with current_app.open_resource('database\schemas\schema.sql') as f:
             db.executescript(f.read().decode('utf8'))
 
     if typeconnect == 'mysql':
