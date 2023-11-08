@@ -6,10 +6,10 @@ from flask import (
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from ...database.db import get_db
-from ...mail.token import generate_confirmation_token, confirm_token
-from ...mail.email import sendmail
-from ...forms.auth.authform import FormRegister, FormLogin, FormLostInfoemail, FormLostChangepass
+from flaskr.database.db import get_db
+from flaskr.mail.token import generate_confirmation_token, confirm_token
+from flaskr.mail.email import sendmail
+from flaskr.forms.auth.authform import FormRegister, FormLogin, FormLostInfoemail, FormLostChangepass
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 

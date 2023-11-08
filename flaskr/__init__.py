@@ -1,14 +1,14 @@
 import os
 from flask import Flask
-from . import config
+#from .config import BaseConfig
 from dotenv import load_dotenv
-from .config import BaseConfig
+#from config import BaseConfig
 
 load_dotenv()
 
 def create_app(test_config=None):
     #cria e configura o app
-    app = Flask(__name__, instance_relative_config=True)
+    app = Flask(__name__,instance_relative_config=True)
     app.config.from_mapping(
         SECRET_KEY=os.getenv('SECRET_KEY'),
         SECURITY_PASSWORD_SALT=os.getenv('SECURITY_PASSWORD_SALT'),
@@ -41,7 +41,7 @@ def create_app(test_config=None):
 
     if test_config is None:
         #Carrega a instância config, se ela existir, então não testa
-        app.config.from_pyfile('config.py', silent=True)
+        app.config.from_pyfile('config.py',silent=True)
     else:
         #Senão, carrega a estrutura de teste
         app.config.from_mapping(test_config)

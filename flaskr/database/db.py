@@ -38,7 +38,7 @@ def get_db():
             print('USANDO SQLITE')
         if typeconnect == 'mysql':
             try:
-                g.db=connection().cursor()
+                g.db = connection().cursor()
                 print('USANDO MYSQL')
             except:
                 print('FALHA NA CONEXÃO')
