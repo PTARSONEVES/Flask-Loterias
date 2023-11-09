@@ -27,6 +27,10 @@ def create_app(test_config=None):
     print('NOME FANTASIA: ',os.getenv('EMPRESA_NOMFAN'))
     print('SSS:',app.config["SECURITY_PASSWORD_SALT"])
 
+    from .database import db
+    db.init_app(app)
+    db.atualiza_lf_app(app)
+
     from .controller.auth import auth
     app.register_blueprint(auth.bp)
 

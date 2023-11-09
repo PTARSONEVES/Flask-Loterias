@@ -49,7 +49,7 @@ def close_db(e=None):
 
     if db is not None:
         db.close()
-        cnx.close()
+#        cnx.close()
 
 def init_db():
     typeconnect = os.getenv('TYPE_CONNECT')
@@ -60,193 +60,39 @@ def init_db():
             db.executescript(f.read().decode('utf8'))
 
     if typeconnect == 'mysql':
-        init_mysql()
+        with current_app.open_resource('database\schemas\initmysql.sql') as f:
+            for x in f:
+                query = x[0:len(x)-2]
+                db.execute(query)
 
 
-def init_mysql():
+def atualiza_lf():
+    typeconnect = os.getenv('TYPE_CONNECT')
     db = get_db()
-    """ Cria o Banco de Dados """
-    query = text(
-        f"DROP DATABASE IF EXISTS `flask_loterias`;CREATE DATABASE IF NOT EXISTS `flask_loterias` /*!40100 DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci */;USE `flask_loterias`;"
-    )
-    db.execute(query)
-    """ Cria a tabela de tipo de Usuário """
-    query = text(
-        f"CREATE TABLE `user_class` (`id` INT(11) NOT NULL AUTO_INCREMENT,`class_name` VARCHAR(50) NOT NULL COLLATE 'utf8_general_ci',PRIMARY KEY (`id`) USING BTREE)COLLATE='utf8_general_ci'ENGINE=InnoDB;"
-    )
-    db.execute(query)
-    """ Cria a Tabela de Usuários"""
-    query = text(
-        f"CREATE TABLE `user` (`id` INT(11) NOT NULL AUTO_INCREMENT,`class_id` INT(11) NOT NULL DEFAULT 0,`username` VARCHAR(200) NOT NULL COLLATE 'utf8_general_ci',`email` VARCHAR(200) NOT NULL COLLATE 'utf8_general_ci',`email_verified_at` DATETIME NULL DEFAULT NULL,`email_confirmed` VARCHAR(1) NULL DEFAULT '0' COLLATE 'utf8_general_ci',`password` VARCHAR(200) NOT NULL DEFAULT '' COLLATE 'utf8_general_ci',`remember_token` TEXT NULL DEFAULT NULL COLLATE 'utf8_general_ci',`created_at` DATETIME NULL DEFAULT NULL,`updated_at` DATETIME NULL DEFAULT NULL,PRIMARY KEY (`id`) USING BTREE,INDEX `FK_user_user_class` (`class_id`) USING BTREE,CONSTRAINT `FK_user_user_class` FOREIGN KEY (`class_id`) REFERENCES `user_class` (`id`) ON UPDATE NO ACTION ON DELETE NO ACTION)COLLATE='utf8_general_ci'ENGINE=InnoDB;"
-    )
-    db.execute(query)
-    """ Cria a Tabela de Referência para UFs e Municípios """
-    query = text(
-        f"CREATE TABLE dtf_municipios(uf_codigo VARCHAR(2) NULL DEFAULT NULL COLLATE 'utf8_general_ci',uf_nome VARCHAR(150) NULL DEFAULT NULL COLLATE 'utf8_general_ci',rgint_codigo VARCHAR(4) NULL DEFAULT NULL COLLATE 'utf8_general_ci',rgint_nome VARCHAR(150) NULL DEFAULT NULL COLLATE 'utf8_general_ci',rgimed_codigo VARCHAR(6) NULL DEFAULT NULL COLLATE 'utf8_general_ci',rgimed_nome VARCHAR(150) NULL DEFAULT NULL COLLATE 'utf8_general_ci',mesoreg_codigo VARCHAR(2) NULL DEFAULT NULL COLLATE 'utf8_general_ci',mesoreg_nome VARCHAR(150) NULL DEFAULT NULL COLLATE 'utf8_general_ci',microreg_codigo VARCHAR(3) NULL DEFAULT NULL COLLATE 'utf8_general_ci',microreg_nome VARCHAR(150) NULL DEFAULT NULL COLLATE 'utf8_general_ci',municipio_codigo VARCHAR(5) NULL DEFAULT NULL COLLATE 'utf8_general_ci',municipio_codigo_amplo VARCHAR(7) NULL DEFAULT NULL COLLATE 'utf8_general_ci',municipio_nome VARCHAR(150) NULL DEFAULT NULL COLLATE 'utf8_general_ci')COLLATE='utf8_general_ci'ENGINE=InnoDB;"
-    )
-    db.execute(query)
-    """ Carrega a tabela de referência com os dados do IBGE """
-    query = text(
-        f"LOAD DATA INFILE 'F:/OneDrive/IBGE/DIVISAO_TERRITORIAL/RELATORIO_DTB_BRASIL_MUNICIPIO.csv' INTO TABLE dtf_municipios FIELDS TERMINATED BY ';';DELETE FROM dtf_municipios WHERE uf_codigo='UF';"
-    )
-    db.execute(query)
-    """ Cria os tipos básicos de Usuários """
-    query = text(
-        f"INSERT INTO user_class (`class_name`) VALUES ('Administrador'),('Cliente'),('Visitante'),('Colaborador');"
-    )
-    db.execute(query)
-    """ Cria o Administrador principal do Sistema """
-    query = text(
-        f"INSERT INTO user (`class_id`,`username`,`email`,`email_verified_at`,`email_confirmed`,`password`,`created_at`,`updated_at`) VALUES (:c1,:c2,:c3,:c4,:c5,:c6,:c7,:c8)"
-    )
-    db.execute(
-        query,[{
-            'c1' : 1,
-            'c2' : 'ptarsoneves',
-            'c3' : 'ptarsoneves@squallo.net',
-            'c4' : datetime.now(),
-            'c5' : '1',
-            'c6' : generate_password_hash('admin'),
-            'c7' : datetime.now(),
-            'c8' : datetime.now()
-        }]
-    )
-    """ Cria a Tabela de UFs """
-    query = text(
-        f"CREATE TABLE `ufs`(`id` INT(11) NOT NULL AUTO_INCREMENT,`uf_codigo` VARCHAR(2) NULL DEFAULT NULL COLLATE 'utf8_general_ci',`uf_nome` VARCHAR(150) NULL DEFAULT NULL COLLATE 'utf8_general_ci',PRIMARY KEY (`id`) USING BTREE)COLLATE='utf8_general_ci'ENGINE=InnoDB;"
-    )
-    db.execute(query)
-    """ Cria a Tabela de Municípios """
-    query = text(
-        f"CREATE TABLE `municipios` (`id` INT(11) NOT NULL AUTO_INCREMENT,`ufs_id` INT(11) NOT NULL DEFAULT '0',`municipio_codigo` VARCHAR(5) NULL DEFAULT NULL COLLATE 'utf8_general_ci',`municipio_codigo_amplo` VARCHAR(7) NULL DEFAULT NULL COLLATE 'utf8_general_ci',`municipio_nome` VARCHAR(150) NULL DEFAULT NULL COLLATE 'utf8_general_ci',PRIMARY KEY (`id`) USING BTREE,INDEX `FK_municipios_ufs` (`ufs_id`) USING BTREE,CONSTRAINT `FK_municipios_ufs` FOREIGN KEY (`ufs_id`) REFERENCES `ufs` (`id`) ON UPDATE CASCADE ON DELETE CASCADE)COLLATE='utf8_general_ci'ENGINE=InnoDB;"
-    )
-    db.execute(query)
-    """ Insere os dados na tabela de UFs """
-    query = text(
-        f"INSERT INTO ufs (`uf_codigo`,`uf_nome`) SELECT DISTINCT a.uf_codigo,a.uf_nome FROM dtf_municipios a;"
-    )
-    db.execute(query)
-    """ Insere os dados na Tabela de Municípios"""
-    query = text(
-        f"INSERT INTO municipios (`ufs_id`,`municipio_codigo`,`municipio_codigo_amplo`,`municipio_nome`) SELECT DISTINCT b.id AS ufs_id,a.municipio_codigo,a.municipio_codigo_amplo,a.municipio_nome FROM dtf_municipios a, ufs b WHERE a.uf_codigo=b.uf_codigo;"
-    )
-    db.execute(query)
-    """ Elimina a tabela de referência """
-    query = text(
-        f"DROP TABLE if EXISTS dtf_municipios"
-    )
-    db.execute(query)
-    """ Insere campos de criação e alteração de dados nas tabelas de Tipos de Usuário, UFs e Municípios """
-    query = text(
-        f"ALTER TABLE `ufs` ADD COLUMN `created_at` DATETIME NULL AFTER `uf_nome`,ADD COLUMN `updated_at` DATETIME NULL AFTER `created_at`;ALTER TABLE `municipios` ADD COLUMN `created_at` DATETIME NULL AFTER `municipio_nome`,ADD COLUMN `updated_at` DATETIME NULL AFTER `created_at`;ALTER TABLE `user_class` ADD COLUMN `created_at` DATETIME NULL AFTER `class_name`,ADD COLUMN `updated_at` DATETIME NULL AFTER `created_at`;"
-    )
-    db.execute(query)
-    """ Insere data de criação e atualização nas tabelas de tipo de usuario, ufs e municípios """
-    query = text(
-        f"UPDATE ufs SET created_at= :criacao, updated_at= :atualizacao;UPDATE municipios SET created_at= :criacao, updated_at= :atualizacao;UPDATE user_class SET created_at= :criacao, updated_at= :atualizacao"
-    )
-    db.execute(query,{'criacao':datetime.now(),'atualizacao':datetime.now()})
-    """ Confirma """
-    db.commit()
+    if typeconnect == 'mysql':
+        with current_app.open_resource('database\schemas\lfatualiza.sql') as f:
+            for x in f:
+                query = x[0:len(x)-2]
+                db.execute(query)
 
-    result = "OK"
-    return result
 
-def init_mysql_aws():
-    db = get_db()
-    """ Cria o Banco de Dados """
-    query = text(
-        f"DROP DATABASE IF EXISTS `flask_loterias`;CREATE DATABASE IF NOT EXISTS `flask_loterias` /*!40100 DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci */;USE `flask_loterias`;"
-    )
-    db.execute(query)
-    """ Cria a tabela de tipo de Usuário """
-    query = text(
-        f"CREATE TABLE `user_class` (`id` INT(11) NOT NULL AUTO_INCREMENT,`class_name` VARCHAR(50) NOT NULL COLLATE 'utf8_general_ci',PRIMARY KEY (`id`) USING BTREE)COLLATE='utf8_general_ci'ENGINE=InnoDB;"
-    )
-    db.execute(query)
-    """ Cria a Tabela de Usuários"""
-    query = text(
-        f"CREATE TABLE `user` (`id` INT(11) NOT NULL AUTO_INCREMENT,`class_id` INT(11) NOT NULL DEFAULT 0,`username` VARCHAR(200) NOT NULL COLLATE 'utf8_general_ci',`email` VARCHAR(200) NOT NULL COLLATE 'utf8_general_ci',`email_verified_at` DATETIME NULL DEFAULT NULL,`email_confirmed` VARCHAR(1) NULL DEFAULT '0' COLLATE 'utf8_general_ci',`password` VARCHAR(200) NOT NULL DEFAULT '' COLLATE 'utf8_general_ci',`remember_token` TEXT NULL DEFAULT NULL COLLATE 'utf8_general_ci',`created_at` DATETIME NULL DEFAULT NULL,`updated_at` DATETIME NULL DEFAULT NULL,PRIMARY KEY (`id`) USING BTREE,INDEX `FK_user_user_class` (`class_id`) USING BTREE,CONSTRAINT `FK_user_user_class` FOREIGN KEY (`class_id`) REFERENCES `user_class` (`id`) ON UPDATE NO ACTION ON DELETE NO ACTION)COLLATE='utf8_general_ci'ENGINE=InnoDB;"
-    )
-    db.execute(query)
-    """ Cria a Tabela de Referência para UFs e Municípios """
-    query = text(
-        f"CREATE TABLE dtf_municipios(uf_codigo VARCHAR(2) NULL DEFAULT NULL COLLATE 'utf8_general_ci',uf_nome VARCHAR(150) NULL DEFAULT NULL COLLATE 'utf8_general_ci',rgint_codigo VARCHAR(4) NULL DEFAULT NULL COLLATE 'utf8_general_ci',rgint_nome VARCHAR(150) NULL DEFAULT NULL COLLATE 'utf8_general_ci',rgimed_codigo VARCHAR(6) NULL DEFAULT NULL COLLATE 'utf8_general_ci',rgimed_nome VARCHAR(150) NULL DEFAULT NULL COLLATE 'utf8_general_ci',mesoreg_codigo VARCHAR(2) NULL DEFAULT NULL COLLATE 'utf8_general_ci',mesoreg_nome VARCHAR(150) NULL DEFAULT NULL COLLATE 'utf8_general_ci',microreg_codigo VARCHAR(3) NULL DEFAULT NULL COLLATE 'utf8_general_ci',microreg_nome VARCHAR(150) NULL DEFAULT NULL COLLATE 'utf8_general_ci',municipio_codigo VARCHAR(5) NULL DEFAULT NULL COLLATE 'utf8_general_ci',municipio_codigo_amplo VARCHAR(7) NULL DEFAULT NULL COLLATE 'utf8_general_ci',municipio_nome VARCHAR(150) NULL DEFAULT NULL COLLATE 'utf8_general_ci')COLLATE='utf8_general_ci'ENGINE=InnoDB;"
-    )
-    db.execute(query)
-    """ Carrega a tabela de referência com os dados do IBGE """
-#    query = text(
-#        f"LOAD DATA INFILE 'F:/OneDrive/IBGE/DIVISAO_TERRITORIAL/RELATORIO_DTB_BRASIL_MUNICIPIO.csv' INTO TABLE dtf_municipios FIELDS TERMINATED BY ';';DELETE FROM dtf_municipios WHERE uf_codigo='UF';"
-#    )
-#    db.execute(query)
-    """ Cria os tipos básicos de Usuários """
-    query = text(
-        f"INSERT INTO user_class (`class_name`) VALUES ('Administrador'),('Cliente'),('Visitante'),('Colaborador');"
-    )
-    db.execute(query)
-    """ Cria o Administrador principal do Sistema """
-    query = text(
-        f"INSERT INTO user (`class_id`,`username`,`email`,`email_verified_at`,`email_confirmed`,`password`,`created_at`,`updated_at`) VALUES (:c1,:c2,:c3,:c4,:c5,:c6,:c7,:c8)"
-    )
-    db.execute(
-        query,[{
-            'c1' : 1,
-            'c2' : 'ptarsoneves',
-            'c3' : 'ptarsoneves@squallo.net',
-            'c4' : datetime.now(),
-            'c5' : '1',
-            'c6' : generate_password_hash('admin'),
-            'c7' : datetime.now(),
-            'c8' : datetime.now()
-        }]
-    )
-    """ Cria a Tabela de UFs """
-    query = text(
-        f"CREATE TABLE `ufs`(`id` INT(11) NOT NULL AUTO_INCREMENT,`uf_codigo` VARCHAR(2) NULL DEFAULT NULL COLLATE 'utf8_general_ci',`uf_nome` VARCHAR(150) NULL DEFAULT NULL COLLATE 'utf8_general_ci',PRIMARY KEY (`id`) USING BTREE)COLLATE='utf8_general_ci'ENGINE=InnoDB;"
-    )
-    db.execute(query)
-    """ Cria a Tabela de Municípios """
-    query = text(
-        f"CREATE TABLE `municipios` (`id` INT(11) NOT NULL AUTO_INCREMENT,`ufs_id` INT(11) NOT NULL DEFAULT '0',`municipio_codigo` VARCHAR(5) NULL DEFAULT NULL COLLATE 'utf8_general_ci',`municipio_codigo_amplo` VARCHAR(7) NULL DEFAULT NULL COLLATE 'utf8_general_ci',`municipio_nome` VARCHAR(150) NULL DEFAULT NULL COLLATE 'utf8_general_ci',PRIMARY KEY (`id`) USING BTREE,INDEX `FK_municipios_ufs` (`ufs_id`) USING BTREE,CONSTRAINT `FK_municipios_ufs` FOREIGN KEY (`ufs_id`) REFERENCES `ufs` (`id`) ON UPDATE CASCADE ON DELETE CASCADE)COLLATE='utf8_general_ci'ENGINE=InnoDB;"
-    )
-    db.execute(query)
-    """ Insere os dados na tabela de UFs 
-    query = text(
-        f"INSERT INTO ufs (`uf_codigo`,`uf_nome`) SELECT DISTINCT a.uf_codigo,a.uf_nome FROM dtf_municipios a;"
-    )
-    db.execute(query)"""
-    """ Insere os dados na Tabela de Municípios
-    query = text(
-        f"INSERT INTO municipios (`ufs_id`,`municipio_codigo`,`municipio_codigo_amplo`,`municipio_nome`) SELECT DISTINCT b.id AS ufs_id,a.municipio_codigo,a.municipio_codigo_amplo,a.municipio_nome FROM dtf_municipios a, ufs b WHERE a.uf_codigo=b.uf_codigo;"
-    )
-    db.execute(query)"""
-    """ Elimina a tabela de referência """
-    query = text(
-        f"DROP TABLE if EXISTS dtf_municipios"
-    )
-    db.execute(query)
-    """ Insere campos de criação e alteração de dados nas tabelas de Tipos de Usuário, UFs e Municípios """
-    query = text(
-        f"ALTER TABLE `ufs` ADD COLUMN `created_at` DATETIME NULL AFTER `uf_nome`,ADD COLUMN `updated_at` DATETIME NULL AFTER `created_at`;ALTER TABLE `municipios` ADD COLUMN `created_at` DATETIME NULL AFTER `municipio_nome`,ADD COLUMN `updated_at` DATETIME NULL AFTER `created_at`;ALTER TABLE `user_class` ADD COLUMN `created_at` DATETIME NULL AFTER `class_name`,ADD COLUMN `updated_at` DATETIME NULL AFTER `created_at`;"
-    )
-    db.execute(query)
-    """ Insere data de criação e atualização nas tabelas de tipo de usuario, ufs e municípios """
-    query = text(
-        f"UPDATE ufs SET created_at= :criacao, updated_at= :atualizacao;UPDATE municipios SET created_at= :criacao, updated_at= :atualizacao;UPDATE user_class SET created_at= :criacao, updated_at= :atualizacao"
-    )
-    db.execute(query,{'criacao':datetime.now(),'atualizacao':datetime.now()})
-    """ Confirma """
-    db.commit()
+@click.command('atualiza-lf')
+def atualiza_lf_command():
+    """Atualizando resultados"""
+    click.echo('Atualizando a tabela de resultados')
+    atualiza_lf()
+    click.echo('Resultados atualizados')
 
-    result = "OK"
-    return result
-
+def atualiza_lf_app(app):
+    app.teardown_appcontext(close_db)
+    app.cli.add_command(atualiza_lf_command)
 
 
 
 @click.command('init-db')
 def init_db_command():
     """Clear the existing data and create new tables."""
+    click.echo('Limpando o Banco de Dados e criando as tabelas básicas')
     init_db()
     click.echo('database inicializado.')
 
