@@ -64,7 +64,7 @@ def init_db():
             for x in f:
                 query = x[0:len(x)-2]
                 db.execute(query)
-
+        f.close()
 
 def atualiza_lf():
     typeconnect = os.getenv('TYPE_CONNECT')
@@ -74,7 +74,14 @@ def atualiza_lf():
             for x in f:
                 query = x[0:len(x)-2]
                 db.execute(query)
+        f.close()
 
+@click.command('init-db')
+def init_db_command():
+    """Clear the existing data and create new tables."""
+    click.echo('Limpando o Banco de Dados e criando as tabelas básicas')
+    init_db()
+    click.echo('database inicializado.')
 
 @click.command('atualiza-lf')
 def atualiza_lf_command():
@@ -86,15 +93,6 @@ def atualiza_lf_command():
 def atualiza_lf_app(app):
     app.teardown_appcontext(close_db)
     app.cli.add_command(atualiza_lf_command)
-
-
-
-@click.command('init-db')
-def init_db_command():
-    """Clear the existing data and create new tables."""
-    click.echo('Limpando o Banco de Dados e criando as tabelas básicas')
-    init_db()
-    click.echo('database inicializado.')
 
 def init_app(app):
     app.teardown_appcontext(close_db)
