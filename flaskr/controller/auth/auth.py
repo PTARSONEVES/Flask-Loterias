@@ -18,28 +18,29 @@ bp = Blueprint('auth', __name__, url_prefix='/auth')
 @bp.route('/register', methods=['GET','POST'])
 def register():
     form = FormRegister()
-    if form.validate_on_submit():
-        username = form.usuario.data
-        email = form.email.data
-        password = form.senha.data
-        db = get_db()
-        criacao=datetime.now()
-        try:
-            query = ("INSERT INTO user (username, class_id, email, password, created_at, updated_at) VALUES (%s, %s, %s, %s, %s, %s)")
-            db.execute(query,(username,3,email,generate_password_hash(password),criacao,criacao))
-            token = generate_confirmation_token(email)
-            confirm_url = url_for('auth.confirm_email',token=token,_external=True)
-            html=render_template('auth/message_activate.html',confirm_url=confirm_url)
-            subject="Por favor, confirme seu e-mail"
-            sendmail(email,subject,html)
-            flash('Um link de confirmação foi enviado para o e-mail cadastrado.','success')
-            return redirect(url_for('auth.login'))
-        except db.IntegrityError:
-            error = f"Usuário {username} já está registrado. Faça o login."
-            return render_template('auth/login.html', form=form)
-    if form.errors != {}:
-        for err in form.errors.values():
-            flash(f"Erro ao cadastrar usuário {err}", category="danger")
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            username = form.usuario.data
+            email = form.email.data
+            password = form.senha.data
+            db = get_db()
+            criacao=datetime.now()
+            try:
+                query = ("INSERT INTO user (username, class_id, email, password, created_at, updated_at) VALUES (%s, %s, %s, %s, %s, %s)")
+                db.execute(query,(username,3,email,generate_password_hash(password),criacao,criacao))
+                token = generate_confirmation_token(email)
+                confirm_url = url_for('auth.confirm_email',token=token,_external=True)
+                html=render_template('auth/message_activate.html',confirm_url=confirm_url)
+                subject="Por favor, confirme seu e-mail"
+                sendmail(email,subject,html)
+                flash('Um link de confirmação foi enviado para o e-mail cadastrado.','success')
+                return redirect(url_for('auth.login'))
+            except db.IntegrityError:
+                error = f"Usuário {username} já está registrado. Faça o login."
+                return render_template('auth/login.html', form=form)
+        if form.errors != {}:
+            for err in form.errors.values():
+                flash(f"Erro ao cadastrar usuário {err}", category="danger")
     return render_template('auth/register.html', form=form)
 
 
@@ -47,33 +48,32 @@ def register():
 def login():
     form=FormLogin()
     error = None
-    if form.validate_on_submit():
-        if request.method == 'POST':
+    if request.method == 'POST':
+        if form.validate_on_submit():
             usuario=form.usuario.data
             password=form.senha.data
-            if request.method == 'POST':
-                db = get_db()
-                query = ("SELECT * FROM user WHERE username = %s;")
-                db.execute(query, (usuario))
-                user=db.fetchone()
-                if user is None:
-                    error = 1
-                elif not check_password_hash(user['password'], password):
-                    error = 2
-                if user['email_confirmed'] == '0':
-                    error = 3 
-                if error is None:
-                    session.clear()
-                    session['user_id'] = user['id']
-                    return redirect(url_for('home'))
-    if form.errors != {}:
-        for err in form.errors.values():
-            flash(f"Erro ao efetuar login do usuário {err}", category="danger")
-    if error != None:
-        if error == 3:
-            flash(f"Conta ainda não confirmada> Verifique seu e-mail", category="danger")
-        else:
-            flash(f"Erro ao efetuar login. Verificar senha e/ou usuário", category="danger")
+            db = get_db()
+            query = ("SELECT * FROM user WHERE username = %s;")
+            db.execute(query, (usuario))
+            user=db.fetchone()
+            if user is None:
+                error = 1
+            elif not check_password_hash(user['password'], password):
+                error = 2
+            if user['email_confirmed'] == '0':
+                error = 3 
+            if error is None:
+                session.clear()
+                session['user_id'] = user['id']
+                return redirect(url_for('home'))
+        if form.errors != {}:
+            for err in form.errors.values():
+                flash(f"Erro ao efetuar login do usuário {err}", category="danger")
+        if error != None:
+            if error == 3:
+                flash(f"Conta ainda não confirmada> Verifique seu e-mail", category="danger")
+            else:
+                flash(f"Erro ao efetuar login. Verificar senha e/ou usuário", category="danger")
     return render_template("auth/login.html", form=form)
 
 

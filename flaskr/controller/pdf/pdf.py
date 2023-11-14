@@ -1,7 +1,6 @@
 import pdfkit, uuid, os
 from dotenv import load_dotenv
-from flask import Blueprint, render_template, make_response
-from ...config import basedir, APP_ROOT, Download_PATH, Download_FOLDER
+from flask import Blueprint, render_template, make_response,current_app
 from ...mail.email import sendpdf 
 
 load_dotenv()
@@ -11,7 +10,9 @@ bp = Blueprint('pdf',__name__)
 @bp.route("/pdfcreate", methods=['GET','POST'])
 def pdfcreate():
     filename = str(uuid.uuid4())+'.pdf'
-    config = pdfkit.configuration(wkhtmltopdf=Download_FOLDER)
+    config = pdfkit.configuration(wkhtmltopdf=current_app.config["DOWNLOAD_PATH"])
+#    config = pdfkit.configuration(wkhtmltopdf='/usr/local/bin/wkhtmltopdf')
+
     dados = {
         "responsavel" : "Paulo de Tarso",
         "email" : "ptarsoneves@yahoo.com.br",
@@ -29,11 +30,11 @@ def pdfcreate():
         'page-height': '97mm',
         'page-width': '210mm',
         'encoding': 'utf-8',
-        'footer-left': os.getenv('EMPRESA_NOMFAN'),
+        'footer-left': current_app.config["NOME_FANTASIA"],
         'footer-font-size': 6,
         'footer-line': True,
         'header-line': True,
-        'header-left': os.getenv('EMPRESA_NOMFAN')
+        'header-left': current_app.config["NOME_FANTASIA"]
     }
     html = render_template("pdf/pdf_template.html",dados=dados)
     pdfkit.from_string(html,filename,configuration=config, options=options)

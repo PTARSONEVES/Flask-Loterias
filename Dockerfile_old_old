@@ -17,7 +17,7 @@ ENV PYTHONUNBUFFERED=1
 WORKDIR /app
 
 # Create a non-privileged user that the app will run under.
-# See https://docs.docker.com/go/dockerfile-user-best-practices/
+# See https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#user
 ARG UID=10001
 RUN adduser \
     --disabled-password \
@@ -46,5 +46,5 @@ COPY . .
 EXPOSE 8000
 
 # Run the application.
-##CMD gunicorn '.venv.Lib.site-packages.gunicorn.http.wsgi' --bind=0.0.0.0:8000
+# CMD gunicorn 'venv.Lib.site-packages.gunicorn.http.wsgi' --bind=0.0.0.0:8000
 CMD [ "python3", "-m" , "flask", "--app", "flaskr", "run", "--host=0.0.0.0"]

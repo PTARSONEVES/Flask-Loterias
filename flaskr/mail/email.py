@@ -1,24 +1,25 @@
 import smtplib, ssl, os
-from dotenv import load_dotenv 
+#from dotenv import load_dotenv
+from flask import current_app 
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
 from datetime import datetime
 
-load_dotenv()
+#load_dotenv()
 
 def sendmail(email,subject,html):
 
-    port = os.getenv('MAIL_PORT')
-    smtp_server = os.getenv('MAIL_SERVER')
-    sender_email = os.getenv('MAIL_USERNAME')
-    password = os.getenv('MAIL_PASSWORD')
+    port = current_app.config["MAIL_PORT"]
+    smtp_server = current_app.config["MAIL_SERVER"]
+    sender_email = current_app.config["MAIL_USERNAME"]
+    password = current_app.config["MAIL_PASSWORD"]
 
     # Create message container - the correct MIME type is multipart/alternative.
     msg = MIMEMultipart('alternative')
     msg['Subject'] = subject + str(datetime.now())
-    msg['From'] = os.getenv('MAIL_USERNAME')
+    msg['From'] = current_app.config["MAIL_USERNAME"]
     msg['To'] = email
 
     # Create the body of the message (a plain-text and an HTML version).
@@ -51,15 +52,15 @@ def sendmail(email,subject,html):
 
 def sendpdf(email,file,subject):
 
-    port = os.getenv('MAIL_PORT')
-    smtp_server = os.getenv('MAIL_SERVER')
-    sender_email = os.getenv('MAIL_USERNAME')
-    password = os.getenv('MAIL_PASSWORD')
+    port = current_app.config["MAIL_PORT"]
+    smtp_server = current_app.config["MAIL_SERVER"]
+    sender_email = current_app.config["MAIL_USERNAME"]
+    password = current_app.config["MAIL_PASSWORD"]
 
     # Create message container - the correct MIME type is multipart/alternative.
     msg = MIMEMultipart()
-    msg['Subject'] = subject + str(datetime.now())
-    msg['From'] = os.getenv('MAIL_USERNAME')
+    msg['Subject'] = subject + 'mensagem enviada em ' + str(datetime.now())
+    msg['From'] = current_app.config["MAIL_USERNAME"]
     msg['To'] = email
 
     # Create the body of the message (a plain-text and an HTML version).
