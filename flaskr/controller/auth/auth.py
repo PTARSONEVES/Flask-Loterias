@@ -184,7 +184,6 @@ def changepass(usuario):
         criacao=datetime.now()
         query = ("UPDATE user SET password= %s,updated_at= %s WHERE id= %s;")
         db.execute(query,(senha,criacao,usuario))
-#        db.commit()
         flash('Senha alterada com sucesso!! Faça seu login.','success')
         return redirect(url_for('auth.login'))
     return render_template('auth/lost_changepass.html', form=form, usuario=usuario)

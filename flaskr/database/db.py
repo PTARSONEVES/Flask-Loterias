@@ -6,17 +6,18 @@ from datetime import datetime
 from werkzeug.security import generate_password_hash
 from sqlalchemy import create_engine, text
 from flask import current_app, g
-from dotenv import load_dotenv
+#from dotenv import load_dotenv
 
-load_dotenv()
+#load_dotenv()
 
 def connection():
     try:
         c = pymysql.connect(
-            host=os.getenv('MYSQL_HOST'),
-            user=os.getenv('MYSQL_USER'),
-            passwd=os.getenv('MYSQL_PASS'),
-            database=os.getenv('MYSQL_DATABASE'),
+            host=current_app.config["MYSQL_HOST"],
+            user=current_app.config["MYSQL_USER"],
+            passwd=current_app.config["MYSQL_PASS"],
+            database=current_app.config["MYSQL_DATABASE"],
+            port=current_app.config["MYSQL_PORT"],
             charset='utf8mb4',
             cursorclass=pymysql.cursors.DictCursor,
             autocommit=True
@@ -27,7 +28,7 @@ def connection():
         exit(1)
 
 def get_db():
-    typeconnect = os.getenv('TYPE_CONNECT')
+    typeconnect = current_app.config["TYPE_CONNECT"]
     if 'db' not in g:
         if typeconnect == 'sqlite':
             g.db = sqlite3.connect(
@@ -67,7 +68,7 @@ def init_db():
         f.close()
 
 def atualiza_lf():
-    typeconnect = os.getenv('TYPE_CONNECT')
+    typeconnect = current_app.config["TYPE_CONNECT"]
     db = get_db()
     if typeconnect == 'mysql':
         with current_app.open_resource('database\schemas\lfatualiza.sql') as f:

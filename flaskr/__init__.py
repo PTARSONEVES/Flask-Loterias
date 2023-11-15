@@ -1,11 +1,11 @@
 import os
 from flask import Flask
-from config import BaseConfig,Download_FOLDER
+from config import BaseConfig
 #from .config import BaseConfig
-from dotenv import load_dotenv
+#from dotenv import load_dotenv
 #from config import BaseConfig
 
-load_dotenv()
+#load_dotenv()
 
 def create_app(test_config=None):
     #cria e configura o app
@@ -15,7 +15,7 @@ def create_app(test_config=None):
         BASEDIR = os.path.abspath(os.path.dirname(__file__)),
         APP_ROOT = os.path.dirname(os.path.abspath(__file__)),
         DATABASE=os.path.join(app.instance_path, 'flask.sqlite'),
-        DOWNLOAD_PATH = os.path.dirname(os.path.abspath(__file__))+'/wkhtmltopdf/bin/wkhtmltopdf.exe',
+        DOWNLOAD_PATH = os.path.join(app.instance_path+'\wkhtmltopdf\\bin','wkhtmltopdf.exe'),
 
         #SECRET_KEY=os.getenv('SECRET_KEY'),
         #SECURITY_PASSWORD_SALT=os.getenv('SECURITY_PASSWORD_SALT'),
@@ -40,7 +40,14 @@ def create_app(test_config=None):
         MAIL_DEFAULT_SENDER=BaseConfig.MAIL_USERNAME,
         # Dados da Empresa
         RAZAO_SOCIAL=BaseConfig.EMPRESA_RSOC,
-        NOME_FANTASIA=BaseConfig.EMPRESA_NOMFAN
+        NOME_FANTASIA=BaseConfig.EMPRESA_NOMFAN,
+        # Banco de Dados
+        TYPE_CONNECT = BaseConfig.TYPE_CONNECT,
+        MYSQL_HOST = BaseConfig.MYSQL_HOST,
+        MYSQL_USER = BaseConfig.MYSQL_USER,
+        MYSQL_PASS = BaseConfig.MYSQL_PASS,
+        MYSQL_PORT = BaseConfig.MYSQL_PORT,
+        MYSQL_DATABASE = BaseConfig.MYSQL_DATABASE        
     )
 
     if test_config is None:
@@ -63,6 +70,7 @@ def create_app(test_config=None):
 
 
     print('SSS:',BaseConfig.EMPRESA_RSOC)
+    print('Download_path:  ',app.config["DOWNLOAD_PATH"])
 #    print(app.config.items())
 
     from .database import db

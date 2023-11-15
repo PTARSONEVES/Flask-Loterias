@@ -1,5 +1,4 @@
 import smtplib, ssl, os
-#from dotenv import load_dotenv
 from flask import current_app 
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -7,7 +6,6 @@ from email.mime.base import MIMEBase
 from email import encoders
 from datetime import datetime
 
-#load_dotenv()
 
 def sendmail(email,subject,html):
 
