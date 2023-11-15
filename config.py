@@ -40,7 +40,8 @@ class BaseConfig(object):
     SQLITE_CONNECT = 'sqlite:///' + os.path.join(basedir, 'dev.sqlite')
     #MYSQL_HOST = 'flask-loterias-db-1'
     MYSQL_HOST = 'flask_loterias.mysql.dbaas.com.br'
-    MYSQL_USER = 'root'
+    #MYSQL_USER = 'root'
+    MYSQL_USER = 'flask_loterias'
     #MYSQL_PASS = 'strolandia'
     MYSQL_PASS = 'Strol!ndi!1'
     MYSQL_PORT = 3306
