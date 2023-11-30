@@ -1,11 +1,6 @@
 import os
 from flask import Flask
 from config import BaseConfig
-#from .config import BaseConfig
-#from dotenv import load_dotenv
-#from config import BaseConfig
-
-#load_dotenv()
 
 def create_app(test_config=None):
     #cria e configura o app
@@ -17,20 +12,11 @@ def create_app(test_config=None):
         DATABASE=os.path.join(app.instance_path, 'flask.sqlite'),
         DOWNLOAD_PATH = os.path.join(app.instance_path+'\wkhtmltopdf\\bin','wkhtmltopdf.exe'),
 
-        #SECRET_KEY=os.getenv('SECRET_KEY'),
-        #SECURITY_PASSWORD_SALT=os.getenv('SECURITY_PASSWORD_SALT'),
         SECRET_KEY=BaseConfig.SECRET_KEY,
         SECURITY_PASSWORD_SALT=BaseConfig.SECURITY_PASSWORD_SALT,
 
 
         # Configuração de email
-        #MAIL_SERVER=os.getenv('MAIL_SERVER'),
-        #MAIL_PORT=os.getenv('MAIL_PORT'),
-        #MAIL_USE_TLS=os.getenv('MAIL_USE_TLS'),
-        #MAIL_USE_SSL=os.getenv('MAIL_USE_SSL'),
-        #MAIL_USERNAME=os.getenv('MAIL_USERNAME'),
-        #MAIL_PASSWORD=os.getenv('MAIL_PASSWORD'),
-        #MAIL_DEFAULT_SENDER=os.getenv('MAIL_USERNAME'),
         MAIL_SERVER=BaseConfig.MAIL_SERVER,
         MAIL_PORT=BaseConfig.MAIL_PORT,
         MAIL_USE_TLS=BaseConfig.MAIL_USE_TLS,
@@ -47,7 +33,7 @@ def create_app(test_config=None):
         MYSQL_USER = BaseConfig.MYSQL_USER,
         MYSQL_PASS = BaseConfig.MYSQL_PASS,
         MYSQL_PORT = BaseConfig.MYSQL_PORT,
-        MYSQL_DATABASE = BaseConfig.MYSQL_DATABASE        
+        MYSQL_DATABASE = BaseConfig.MYSQL_DATABASE
     )
 
     if test_config is None:
@@ -71,7 +57,7 @@ def create_app(test_config=None):
 
     print('SSS:',BaseConfig.EMPRESA_RSOC)
     print('Download_path:  ',app.config["DOWNLOAD_PATH"])
-#    print(app.config.items())
+#   print(app.config.items())
 
     from .database import db
     db.init_app(app)

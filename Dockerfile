@@ -46,5 +46,6 @@ COPY . .
 EXPOSE 8000
 
 # Run the application.
-##CMD gunicorn '.venv.Lib.site-packages.gunicorn.http.wsgi' --bind=0.0.0.0:8000
+#CMD gunicorn '.venv.Lib.site-packages.gunicorn.http.wsgi' --bind=0.0.0.0:8000
 CMD [ "python3", "-m" , "flask", "--app", "flaskr", "run", "--host=0.0.0.0"]
+#CMD flask --app flaskr run --host=0.0.0.0
