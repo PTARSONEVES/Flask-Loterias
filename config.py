@@ -38,7 +38,7 @@ class BaseConfig(object):
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     #SQLITE - LOCALHOST
     SQLITE_CONNECT = 'sqlite:///' + os.path.join(basedir, 'dev.sqlite')
-    MYSQL_HOST = 'db'
+    MYSQL_HOST = 'dbdata'
     #MYSQL_HOST = 'flask_loterias.mysql.dbaas.com.br'
     MYSQL_USER = 'root'
     #MYSQL_USER = 'flask_loterias'
