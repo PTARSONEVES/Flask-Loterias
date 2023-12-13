@@ -57,6 +57,7 @@ def create_app(test_config=None):
 
     print('SSS:',BaseConfig.EMPRESA_RSOC)
     print('Download_path:  ',app.config["DOWNLOAD_PATH"])
+    print('OK')
 #   print(app.config.items())
 
     from .database import db
