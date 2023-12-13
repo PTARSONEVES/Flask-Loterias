@@ -9,8 +9,7 @@ bp = Blueprint('pdf',__name__)
 
 @bp.route("/pdfcreate", methods=['GET','POST'])
 def pdfcreate():
-#    filename = str(uuid.uuid4())+'.pdf'
-    filename = 'voucher.pdf'
+    filename = str(uuid.uuid4())+'.pdf'
 #    config = pdfkit.configuration(wkhtmltopdf=current_app.config["DOWNLOAD_PATH"])
     config = pdfkit.configuration(wkhtmltopdf='/bin/wkhtmltopdf')
 
