@@ -21,7 +21,7 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: strolandia
-      MYSQL_DATABASE: flask_loterias
+      MYSQL_DATABASE: flask_layout
     ports:
       - 3306:3306
     volumes:

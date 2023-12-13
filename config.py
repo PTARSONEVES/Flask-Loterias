@@ -14,7 +14,7 @@ class BaseConfig(object):
     #DADOS DA EMPRESA
 
     EMPRESA_RSOC = 'Squallo Software'
-    EMPRESA_NOMFAN = 'Squallo - Loterias'
+    EMPRESA_NOMFAN = 'Flask - Layout'
     EMPRESA_LOGRADOURO = ''
     EMPRESA_NUMLOGR = ''
     EMPRESA_COMPLEMENTO = ''
@@ -38,14 +38,14 @@ class BaseConfig(object):
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     #SQLITE - LOCALHOST
     SQLITE_CONNECT = 'sqlite:///' + os.path.join(basedir, 'dev.sqlite')
-    MYSQL_HOST = 'db'
+    MYSQL_HOST = 'localhost'
     #MYSQL_HOST = 'flask_loterias.mysql.dbaas.com.br'
     MYSQL_USER = 'root'
     #MYSQL_USER = 'flask_loterias'
     MYSQL_PASS = 'strolandia'
     #MYSQL_PASS = 'Strol!ndi!1'
     MYSQL_PORT = 3306
-    MYSQL_DATABASE = 'flask_loterias'
+    MYSQL_DATABASE = 'flask_layout'
     #CORRESPONDENCIA
     MAIL_SERVER='email-ssl.com.br'
     MAIL_PORT=587
